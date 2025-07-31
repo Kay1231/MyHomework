@@ -15,7 +15,7 @@ const BlindBox = ({
       <div className="text-lg font-bold mb-4 text-gray-800">{name}</div>
       <button
         onClick={onDetail}
-        className="w-full py-2 text-base font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition"
+        className="w-full py-2 text-base font-medium rounded-md bg-lime-500 hover:bg-green-100 text-white transition"
       >
         查看详情
       </button>
