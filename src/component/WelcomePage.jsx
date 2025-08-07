@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import '../App.css'
-import BlindBox from '../component/blindbox'
+import BlindBox from './BlindBoxCard'
 
 function App() {
 
@@ -12,7 +12,7 @@ function App() {
     <div className="relative min-h-screen bg-gray-50">
       {/* 登录按钮，右上角绝对定位 */}
       <button
-        className="absolute top-6 right-8 px-6 py-2 bg-yellow-500 hover:bg-blue-600 text-white rounded-lg shadow font-semibold transition"
+        className="absolute top-6 right-8 px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow font-semibold transition"
         onClick={handleLogin}
       >
         登录
