@@ -3,15 +3,60 @@ import BoxCard from '../components/BoxCard';
 import { box } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
+const PRESET_BOXES = [
+  {
+    id: 1,
+    name: "罗小黑盲盒",
+    image: "/xiaohei.jpg",
+  },
+  {
+    id: 2,
+    name: "三丽鸥盲盒",
+    image: "/sanliou.jpg",
+  },
+  {
+    id: 3,
+    name: "美食盲盒",
+    image: "/meishi.jpg",
+  }
+];
+
 export default function BoxListPage() {
   const [boxes, setBoxes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [usePreset, setUsePreset] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
     const fetchBoxes = async () => {
-      const res = await box.getAll();
-      setBoxes(res.data);
+      try {
+        setLoading(true);
+        const res = await box.getAll();
+        console
+.log('获取盲盒列表:', res.data);
+        
+        if (res.data && res.data.length > 0) {
+          setBoxes(res.data);
+        } else {
+          // 如果后端返回空，使用前端预设
+          setBoxes(PRESET_BOXES);
+          setUsePreset(true);
+        }
+        
+        setError(null);
+      } catch (err) {
+        console
+.error('获取盲盒列表失败:', err);
+        // API失败时使用前端预设
+        setBoxes(PRESET_BOXES);
+        setUsePreset(true);
+        setError('无法连接服务器，使用演示数据');
+      } finally {
+        setLoading(false);
+      }
     };
+    
     fetchBoxes();
   }, []);
 
