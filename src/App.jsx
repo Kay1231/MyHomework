@@ -5,6 +5,7 @@ import BoxDetailPage from './pages/BoxDetailPage';
 import DrawPage from './pages/DrawPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/box/:id/draw" element={<DrawPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/admin/init" element={<AdminPage />} />
       </Routes>
     </BrowserRouter>
   );

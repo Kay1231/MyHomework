@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import BoxDetail from '../components/BoxDetail';
 import { box } from '../services/api';
+import CommentSection from '../components/CommentSection';
 
 // 前端预设盲盒详情 - 使用字符串键
 const PRESET_BOX_DETAILS = {
@@ -42,7 +43,7 @@ const PRESET_BOX_DETAILS = {
 
 export default function BoxDetailPage() {
   const { id } = useParams();
-  const [boxDetail, setBoxDetail] = useState(null);
+  const [boxData, setBoxData] = useState(null); // 统一使用一个状态变量
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usePreset, setUsePreset] = useState(false);
@@ -58,7 +59,7 @@ export default function BoxDetailPage() {
         
         // 确保数据结构正确
         if (res.data && res.data.items) {
-          setBoxDetail(res.data);
+          setBoxData(res.data);
           setError(null);
         } else {
           // API返回了数据但格式不正确
@@ -70,7 +71,10 @@ export default function BoxDetailPage() {
         // 尝试使用前端预设
         const stringId = String(id);
         if (PRESET_BOX_DETAILS[stringId]) {
-          setBoxDetail(PRESET_BOX_DETAILS[stringId]);
+          setBoxData({
+            ...PRESET_BOX_DETAILS[stringId],
+            comments: [] // 添加空的评论数组
+          });
           setUsePreset(true);
           setError('使用演示数据: ' + err.message);
         } else {
@@ -83,6 +87,45 @@ export default function BoxDetailPage() {
     
     fetchBoxDetail();
   }, [id]);
+
+  const handleAddComment = async (content) => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      alert('请先登录');
+      return;
+    }
+    
+    try {
+    // 发送评论
+    const response = await fetch('http://localhost:7001/api/comment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: parseInt(userId),
+        boxId: parseInt(id),
+        content
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      // 将新评论添加到现有评论列表中
+      setBoxData(prev => ({
+        ...prev,
+        comments: [result.data, ...(prev.comments || [])] // 新评论在前
+      }));
+    } else {
+      throw new Error(result.message || '评论提交失败');
+    }
+  } catch (error) {
+    console
+.error('提交评论失败:', error);
+    setError('评论提交失败: ' + error.message);
+  }
+};
 
   if (loading) {
     return (
@@ -109,16 +152,23 @@ export default function BoxDetailPage() {
     );
   }
 
+  if (!boxData) {
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <p className="text-xl">未找到盲盒详情</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="max-w-4xl mx-auto p-4">
+      <BoxDetail box={boxData} />
       
-      {boxDetail && <BoxDetail box={boxDetail} />}
-      
-      {!boxDetail && !loading && !error && (
-        <div className="container mx-auto p-4 text-center">
-          <p className="text-xl">未找到盲盒详情</p>
-        </div>
-      )}
+      {/* 评论区域 */}
+      <CommentSection 
+        comments={boxData.comments || []} 
+        onAddComment={handleAddComment} 
+      />
     </div>
   );
 }
